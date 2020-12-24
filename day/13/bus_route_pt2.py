@@ -93,6 +93,8 @@ for all offsets
 
 Fastest way to find the solution would be to sort by id, and increment by largest id.
 Is there a faster way for very large lists aside from multithreading??
+
+Yes: Chinese remainder theorem. See pt3.
 '''
 #------------------------------------------------------------------------------
 def run():
