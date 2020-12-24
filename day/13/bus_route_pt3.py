@@ -155,7 +155,7 @@ def options():
 #------------------------------------------------------------------------------
   global g_args
 
-  l_parser = argparse.ArgumentParser(description='Jolts (Advent 2020 day 10')
+  l_parser = argparse.ArgumentParser(description='Bus routes (Advent 2020 day 13')
   
   l_parser.add_argument('--file', dest='m_file', default='input.txt', help="Input file")
   l_parser.add_argument('--debug', dest='m_debug', default=False, action='store_true', help='Debug verbosity')
@@ -219,28 +219,6 @@ def compute_inverse(x_N, x_mod):
 
   assert l_found, "No inverse value found"
   return l_x
-
-
-'''
-Print frequently at first, and less frequently as the number of iterations increase
-'''
-#------------------------------------------------------------------------------
-def tapered_print(x_iter):
-#------------------------------------------------------------------------------
-  global g_iter
-
-  l_mod = 0
-
-  if x_iter < g_iter:
-    l_mod = g_iter / 100
-  else:
-    g_iter *= 10
-    l_mod = g_iter / 100
-
-  
-  l_print = x_iter < 10 or (x_iter % l_mod == 0)
-  return l_print
-
 
 
 #------------------------------------------------------------------------------
