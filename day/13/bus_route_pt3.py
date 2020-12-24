@@ -66,8 +66,85 @@ Here are some other examples:
     67,7,x,59,61 first occurs at timestamp 1261476.
     1789,37,47,1889 first occurs at timestamp 1202161486.
 
+Steps:
+Find t such that:
+(t + offset) % id == 0
+for all offsets
 
+Chinese remainder theorem:
+For the first example (17,x,13,19):
+1. t % 17 == 0
+2. (t + 2) % 13 == 0
+3. (t + 3) % 19 == 0
 
+Rewritten:
+1. t % 17 == 0
+2. t % 13 == 13 - 2 = 11
+3. t % 19 == 19 - 3 = 16
+
+b1, b2, b3 = remainders
+n1, n2, n3 = mods
+N = n1*n2*n3
+N1 = n2*n3
+N2 = n1*n3
+N3 = n2*n3
+x1, x2, x3 = inverses
+
+b1=0
+b2=11
+b3=16
+
+n1=17
+n2=13
+n3=19
+
+N1=13*19=247
+N2=17*19=323
+N3=13*17=221
+
+N=13*17*19=4199
+
+To solve for inverses (x1, x2, x3):
+x1: N1*x1 % n1 == 1
+x2: N2*x2 % n2 == 1
+x3: N3*x3 % n3 == 1
+
+x1:
+247*x1 % 17 = 1
+9*x1 % 17 = 1
+x1 = 2
+
+x2:
+323*x2 % 13 = 1
+11*x2 % 13 = 1
+x2 = 6
+
+x3:
+221*x3 % 19 = 1
+12*x3 % 19 = 1
+x3 = 8
+
+x = sum(bi*Ni*xi)
+= 0*247*2 + 11*323*6 + 19*221*8
+= 21318 + 28288
+= 49606
+49606 % N
+= 49606 % 4199
+= 3417
+
+In code form:
+1. b1, b2, b3 = remainder = mod - offset
+2. n1, n2, n3 = mod (route)
+3. N=n1*n2*n3
+  a. N1 = N/n1
+  b. N2 = N/n2
+  ...
+4. Compute inverses x1, x2, x3...
+  a. N1*x1 % n1 = 1
+  b. N2*x2 % n2 = 1
+  ...
+5. x = sum(bi*Ni*xi)
+6. Answer = x % N
 '''
 
 g_iter = 10
@@ -85,17 +162,6 @@ def options():
   g_args = l_parser.parse_args()
 
 
-'''
-Essentially:
-Find t such that:
-(t + offset) % id == 0
-for all offsets
-
-Fastest way to find the solution would be to sort by id, and increment by largest id.
-Is there a faster way for very large lists aside from multithreading??
-
-Yes: Chinese remainder theorem. See pt3.
-'''
 #------------------------------------------------------------------------------
 def run():
 #------------------------------------------------------------------------------
@@ -104,41 +170,56 @@ def run():
   l_routes = l_file[1].split(',')
 
   '''
-  l_id_map[route id] = index (offset) in route list input
+  l_id_map[offset]['remainder'] = remainder = mod - offset
+  l_id_map[offset]['mod'] = mod (route)
+  l_id_map[offset]['Ni'] = N / l_id_map[offset]['mod'] (compute N first)
+  l_id_map[offset]['inverse'] = inverse
   '''
   l_id_map = dict()
 
   for l_idx, l_route in enumerate(l_routes):
     if l_route == 'x': continue
     l_route = int(l_route)
-    l_id_map[l_route] = l_idx
+    l_id_map[l_idx] = dict()
+    l_id_map[l_idx]['remainder'] = l_route - l_idx
+    l_id_map[l_idx]['mod'] = l_route
+
+  # compute N
+  l_N = 1
+  for l_offset in l_id_map.keys():
+    l_N *= l_id_map[l_offset]['mod']
   
-  l_largest = sorted(l_id_map.keys(), reverse=True)[0]
-  l_t = l_id_map[l_largest] * -1
-  l_done = False
-  l_iter = 0
+  # Set Ni and compute inverses
+  for l_offset in l_id_map.keys():
+    l_id_map[l_offset]['Ni'] = int(l_N / l_id_map[l_offset]['mod'])
+    l_inverse = compute_inverse(l_id_map[l_offset]['Ni'], l_id_map[l_offset]['mod'])
+    l_id_map[l_offset]['inverse'] = l_inverse
 
-  if g_args.m_debug:
-    print("Largest route id is {} at offset {}".format(l_largest, l_id_map[l_largest]))
+  l_x = 0
+  for l_offset in l_id_map.keys():
+    l_x += (l_id_map[l_offset]['remainder'] * l_id_map[l_offset]['Ni'] * l_id_map[l_offset]['inverse'])
 
-  while not l_done:
-    l_done = True
-    l_t += l_largest
-    l_iter += 1
-
-    if g_args.m_debug:
-      if tapered_print(l_iter):
-        print("Iteration {}: trying t={}".format(l_iter, l_t), flush=True)
-
-    for l_route in sorted(l_id_map.keys(), reverse=True):
-      l_idx = l_id_map[l_route]
-
-      if (l_t + l_idx) % l_route != 0:
-        l_done = False
-        break
-
+  l_t = l_x % l_N
   print("The timestamp is {}".format(l_t))
   
+'''
+Given x_N * x % x_mod == 1, solve for x. Just brute force it, because fuck it.
+'''
+#------------------------------------------------------------------------------
+def compute_inverse(x_N, x_mod):
+#------------------------------------------------------------------------------
+  l_x = None
+  l_found = False
+
+  for l_val in range(10000):
+    if (l_val * x_N) % x_mod == 1:
+      l_found = True
+      l_x = l_val
+      break
+
+  assert l_found, "No inverse value found"
+  return l_x
+
 
 '''
 Print frequently at first, and less frequently as the number of iterations increase
