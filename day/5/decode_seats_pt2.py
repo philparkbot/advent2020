@@ -1,0 +1,82 @@
+#!/usr/bin/env python3
+
+import re
+
+'''
+This is just a binary encoding problem. Seating is encoded like this:
+'FBFBBFFRLR'
+
+F/B: row
+F = 0
+B = 1
+
+R/L: col
+R = 1
+L = 0
+
+FBFBBFFRLR->
+row: 0101100b = 44
+col: 101b = 5
+
+Seat ID = row * 8 + col = 357
+
+Find your seat ID. It will be the missing one, but not at the very front/back of the plane
+
+'''
+
+g_file = 'input.txt'
+g_debug = True
+
+#------------------------------------------------------------------------------
+def run():
+#------------------------------------------------------------------------------
+  l_seat_map = dict()
+
+  for l_line in open(g_file).readlines():
+    l_line = l_line.rstrip()
+
+    # split the encoding into row/col sections
+    l_row = l_line[0:7]
+    l_col = l_line[7:10]
+
+    l_row = re.sub('F', '0', l_row)
+    l_row = re.sub('B', '1', l_row)
+
+    l_col = re.sub('L', '0', l_col)
+    l_col = re.sub('R', '1', l_col)
+
+    (l_row_id, l_col_id, l_seat_id) = decode(l_row, l_col)
+
+    l_seat_map[l_seat_id] = dict()
+    l_seat_map[l_seat_id]["col"] = l_col_id
+    l_seat_map[l_seat_id]["row"] = l_row_id
+    l_seat_map[l_seat_id]["enc"] = l_line
+
+    if g_debug:
+      print("Seat encoding:{}, row:{}, col:{}, seat ID:{}".format(l_line, l_row_id, l_col_id, l_seat_id))
+    
+  l_next = None
+
+  for l_id in sorted(l_seat_map.keys()):
+    print("Seat ID {}".format(l_id))
+
+    if l_next and l_id != l_next:
+      print("Seat ID {} is MISSING".format(l_next))
+
+    l_next = l_id + 1
+
+
+
+#------------------------------------------------------------------------------
+def decode(x_row, x_col):
+#------------------------------------------------------------------------------
+  l_row_id = int(x_row, base=2)
+  l_col_id = int(x_col, base=2)
+
+  return (l_row_id, l_col_id, (l_row_id * 8 + l_col_id))
+
+#------------------------------------------------------------------------------
+def main():
+#------------------------------------------------------------------------------
+  run()
+main()
