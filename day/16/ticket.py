@@ -25,11 +25,10 @@ def options():
 #------------------------------------------------------------------------------
   global g_args
 
-  l_parser = argparse.ArgumentParser(description='Bitmask (Advent 2020 day 14)')
+  l_parser = argparse.ArgumentParser(description='Ticket validation (Advent 2020 day 16)')
   
   l_parser.add_argument('--file', dest='m_file', default='input.txt', help="Input file")
   l_parser.add_argument('--debug', dest='m_debug', default=False, action='store_true', help='Debug verbosity')
-  l_parser.add_argument('--stop', dest='m_stop', default=2020, type=int, help='Stop and print the number at the specified turn. 1 indexed.')
   g_args = l_parser.parse_args()
 
 #------------------------------------------------------------------------------

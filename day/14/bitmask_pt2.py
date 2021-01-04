@@ -67,6 +67,10 @@ def run():
 
         if g_args.m_debug:
           print("Writing mem[{}]={}".format(bin(l_addr), l_val))
+        #print("Writing mem[{}]={}".format(hex(l_addr), l_val))
+      
+      # clear address array
+      l_addr_array = list()
   
   if g_args.m_debug:
     print("Memory dump:")

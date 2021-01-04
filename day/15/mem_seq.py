@@ -28,6 +28,9 @@ Turn
 14: 1 ("2" turn 13 - turn 12)
 15: 8 ("1" turn 14 - turn 6)
 
+Note: the code for part 1 and part 2 are the same; part 2 is just a much higher stop count, so
+there were modifications to allow it to keep memory usage from exploding.
+
 '''
 
 g_args = None
@@ -37,7 +40,7 @@ def options():
 #------------------------------------------------------------------------------
   global g_args
 
-  l_parser = argparse.ArgumentParser(description='Bitmask (Advent 2020 day 14)')
+  l_parser = argparse.ArgumentParser(description='Memory sequencer (Advent 2020 day 15)')
   
   l_parser.add_argument('--file', dest='m_file', default='input.txt', help="Input file")
   l_parser.add_argument('--debug', dest='m_debug', default=False, action='store_true', help='Debug verbosity')

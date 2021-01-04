@@ -8,7 +8,7 @@ def options():
 #------------------------------------------------------------------------------
   global g_args
 
-  l_parser = argparse.ArgumentParser(description='Seating (Advent 2020 day 11')
+  l_parser = argparse.ArgumentParser(description='Seating (Advent 2020 day 11)')
   
   l_parser.add_argument('--file', dest='m_file', default='input.txt', help="Input file")
   l_parser.add_argument('--debug', dest='m_debug', default=False, action='store_true', help='Debug verbosity')
